@@ -208,7 +208,11 @@ viewPinInput index pin =
             ]
           <|
             List.map
-                (\side -> option [ value <| sideToString side, selected <| side == pin.side ] [ text <| sideToString side ])
+                (\side ->
+                    option
+                        [ value <| sideToString side, selected <| side == pin.side ]
+                        [ text <| sideToString side ]
+                )
                 [ Top, Bottom, Left, Right ]
         , div [ class "inputgroup" ]
             [ milInput (UpdatePinPosition index) pin.position

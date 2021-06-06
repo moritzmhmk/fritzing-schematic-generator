@@ -174,23 +174,9 @@ view model =
             , div [ class "inputline" ]
                 [ label [ for "width" ] [ text "Size" ]
                 , div [ class "inputgroup" ]
-                    [ input
-                        [ id "width"
-                        , type_ "number"
-                        , value <| String.fromFloat <| milToInch model.width
-                        , step ".1"
-                        , onInput (String.toFloat >> Maybe.map milFromInch >> UpdateWidth)
-                        ]
-                        []
+                    [ milInput UpdateWidth model.width
                     , text "x"
-                    , input
-                        [ id "height"
-                        , type_ "number"
-                        , value <| String.fromFloat <| milToInch model.height
-                        , step ".1"
-                        , onInput (String.toFloat >> Maybe.map milFromInch >> UpdateHeight)
-                        ]
-                        []
+                    , milInput UpdateHeight model.height
                     , text "in"
                     ]
                 ]
@@ -230,16 +216,21 @@ viewPinInput index pin =
                 (\side -> option [ value <| sideToString side ] [ text <| sideToString side ])
                 [ Top, Bottom, Left, Right ]
         , div [ class "inputgroup" ]
-            [ input
-                [ type_ "number"
-                , step ".1"
-                , value <| String.fromFloat <| milToInch pin.position
-                , onInput (String.toFloat >> Maybe.map milFromInch >> UpdatePinPosition index)
-                ]
-                []
+            [ milInput (UpdatePinPosition index) pin.position
             , text "in"
             ]
         ]
+
+
+milInput : (Maybe Int -> msg) -> Int -> Html msg
+milInput milUpdate milValue =
+    input
+        [ type_ "number"
+        , step ".1"
+        , value <| String.fromFloat <| milToInch milValue
+        , onInput (String.toFloat >> Maybe.map milFromInch >> milUpdate)
+        ]
+        []
 
 
 milFromInch : Float -> Int

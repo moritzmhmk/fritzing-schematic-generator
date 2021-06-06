@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Browser
 import Html exposing (Html, button, div, h1, img, input, label, option, select, text)
-import Html.Attributes exposing (class, for, src, step, type_, value)
+import Html.Attributes exposing (class, for, selected, src, step, type_, value)
 import Html.Events exposing (onClick, onInput)
 import List.Extra
 import Svg exposing (Svg, g, path, rect, svg)
@@ -208,7 +208,7 @@ viewPinInput index pin =
             ]
           <|
             List.map
-                (\side -> option [ value <| sideToString side ] [ text <| sideToString side ])
+                (\side -> option [ value <| sideToString side, selected <| side == pin.side ] [ text <| sideToString side ])
                 [ Top, Bottom, Left, Right ]
         , div [ class "inputgroup" ]
             [ milInput (UpdatePinPosition index) pin.position

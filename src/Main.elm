@@ -177,18 +177,18 @@ view model =
                     [ input
                         [ id "width"
                         , type_ "number"
-                        , value <| milToInch model.width
+                        , value <| String.fromFloat <| milToInch model.width
                         , step ".1"
-                        , onInput (milFromInch >> UpdateWidth)
+                        , onInput (String.toFloat >> Maybe.map milFromInch >> UpdateWidth)
                         ]
                         []
                     , text "x"
                     , input
                         [ id "height"
                         , type_ "number"
-                        , value <| milToInch model.height
+                        , value <| String.fromFloat <| milToInch model.height
                         , step ".1"
-                        , onInput (milFromInch >> UpdateHeight)
+                        , onInput (String.toFloat >> Maybe.map milFromInch >> UpdateHeight)
                         ]
                         []
                     , text "in"
@@ -233,8 +233,8 @@ viewPinInput index pin =
             [ input
                 [ type_ "number"
                 , step ".1"
-                , value <| milToInch pin.position
-                , onInput (milFromInch >> UpdatePinPosition index)
+                , value <| String.fromFloat <| milToInch pin.position
+                , onInput (String.toFloat >> Maybe.map milFromInch >> UpdatePinPosition index)
                 ]
                 []
             , text "in"
@@ -242,21 +242,14 @@ viewPinInput index pin =
         ]
 
 
-milFromInch : String -> Maybe Int
-milFromInch inchString =
-    case
-        String.toFloat inchString
-    of
-        Just inch ->
-            Just <| round (inch * 1000)
-
-        Nothing ->
-            Nothing
+milFromInch : Float -> Int
+milFromInch inch =
+    round (inch * 1000)
 
 
-milToInch : Int -> String
+milToInch : Int -> Float
 milToInch mil =
-    String.fromFloat (toFloat mil / 1000)
+    toFloat mil / 1000
 
 
 viewSvg : Model -> Svg Msg

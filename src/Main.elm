@@ -165,9 +165,8 @@ view : Model -> Html Msg
 view model =
     div []
         [ h1 [] [ text "Schematic Generator" ]
-        , div [ class "section" ]
-            [ div [ class "title" ] [ text "Part Properties" ]
-            , div [ class "inputline" ]
+        , sectionDiv "Part Properties"
+            [ div [ class "inputline" ]
                 [ label [ for "label" ] [ text "Label" ]
                 , input [ id "label", type_ "text", value model.label, onInput UpdateLabel ] []
                 ]
@@ -181,20 +180,16 @@ view model =
                     ]
                 ]
             ]
-        , div [ class "section" ] <|
+        , sectionDiv "Pins" <|
             List.concat
-                [ [ div [ class "title" ] [ text "Pins" ] ]
-                , List.indexedMap viewPinInput model.pins
+                [ List.indexedMap viewPinInput model.pins
                 , [ div [ class "inputline" ]
                         [ input [ type_ "button", value "+", onClick AddPin ] []
                         , input [ type_ "button", value "-", onClick RemovePin ] []
                         ]
                   ]
                 ]
-        , div [ class "section" ]
-            [ div [ class "title" ] [ text "Preview" ]
-            , viewSvg model
-            ]
+        , sectionDiv "Preview" [ viewSvg model ]
         ]
 
 
@@ -231,6 +226,11 @@ milInput milUpdate milValue =
         , onInput (String.toFloat >> Maybe.map milFromInch >> milUpdate)
         ]
         []
+
+
+sectionDiv : String -> List (Html Msg) -> Html Msg
+sectionDiv title children =
+    div [ class "section" ] <| div [ class "title" ] [ text title ] :: children
 
 
 milFromInch : Float -> Int

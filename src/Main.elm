@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Browser
 import Html exposing (Html, button, div, h1, img, input, label, option, select, text)
@@ -24,6 +24,10 @@ import Svg.Attributes
         , x
         , y
         )
+import Url exposing (Url, fromString)
+import Url.Builder exposing (relative)
+import Url.Parser exposing (query)
+import Url.Parser.Query as Query
 
 
 
@@ -52,18 +56,70 @@ type Side
     | Right
 
 
-init : () -> ( Model, Cmd Msg )
-init () =
-    ( { label = "Part Label"
-      , width = 500
-      , height = 300
-      , pins =
-            [ { label = "VCC", side = Left, position = 100 }
-            , { label = "GND", side = Left, position = 200 }
-            ]
-      }
-    , Cmd.none
-    )
+defaultModel : Model
+defaultModel =
+    { label = "Part Label"
+    , width = 500
+    , height = 300
+    , pins =
+        [ { label = "VCC", side = Left, position = 100 }
+        , { label = "GND", side = Left, position = 200 }
+        ]
+    }
+
+
+urlToModel : Url -> Model
+urlToModel url =
+    let
+        query =
+            Query.map4 Model
+                (Query.string "label" |> Query.map (Maybe.withDefault defaultModel.label))
+                (Query.int "width" |> Query.map (Maybe.withDefault defaultModel.width))
+                (Query.int "height" |> Query.map (Maybe.withDefault defaultModel.height))
+                (Query.map3 (List.map3 Pin)
+                    (Query.custom "pinLabel" identity)
+                    (Query.custom "pinSide" <| List.filterMap sideFromString)
+                    (Query.custom "pinPosition" <| List.filterMap String.toInt)
+                )
+    in
+    Url.Parser.parse (Url.Parser.query query) url |> Maybe.withDefault defaultModel
+
+
+urlFromModel : Model -> String
+urlFromModel model =
+    Url.Builder.relative []
+        ([ Url.Builder.string "label" model.label
+         , Url.Builder.int "width" model.width
+         , Url.Builder.int "height" model.height
+         ]
+            ++ (model.pins
+                    |> List.map
+                        (\pin ->
+                            [ Url.Builder.string "pinLabel" pin.label
+                            , Url.Builder.string "pinPosition" <| String.fromInt pin.position
+                            , Url.Builder.string "pinSide" <| sideToString pin.side
+                            ]
+                        )
+                    |> List.concat
+               )
+        )
+
+
+init : String -> ( Model, Cmd Msg )
+init locationHref =
+    let
+        maybeUrl =
+            Url.fromString locationHref
+
+        model =
+            case ( maybeUrl, Maybe.map .query maybeUrl ) of
+                ( Just url, Just (Just _) ) ->
+                    urlToModel url
+
+                _ ->
+                    defaultModel
+    in
+    ( model, Cmd.none )
 
 
 
@@ -155,6 +211,23 @@ update msg model =
 
         UpdatePinPosition _ Nothing ->
             ( model, Cmd.none )
+
+
+port pushUrl : String -> Cmd msg
+
+
+updateWithUrl : Msg -> Model -> ( Model, Cmd Msg )
+updateWithUrl msg oldModel =
+    let
+        ( newModel, cmds ) =
+            update msg oldModel
+
+        url =
+            urlFromModel newModel
+    in
+    ( newModel
+    , Cmd.batch [ pushUrl url, cmds ]
+    )
 
 
 
@@ -429,11 +502,11 @@ sideFromString side =
 ---- PROGRAM ----
 
 
-main : Program () Model Msg
+main : Program String Model Msg
 main =
     Browser.element
         { view = view
         , init = init
-        , update = update
+        , update = updateWithUrl
         , subscriptions = always Sub.none
         }

@@ -1,10 +1,10 @@
-import './main.css';
-import { Elm } from './Main.elm';
-import * as serviceWorker from './serviceWorker';
+import "./main.css";
+import { Elm } from "./Main.elm";
+import * as serviceWorker from "./serviceWorker";
 
 var app = Elm.Main.init({
   flags: location.href,
-  node: document.getElementById('root')
+  node: document.getElementById("root"),
 });
 
 // from https://github.com/elm/browser/blob/1.0.2/notes/navigation-in-elements.md
@@ -15,9 +15,9 @@ var app = Elm.Main.init({
 //});
 
 // Change the URL upon request, inform app of the change.
-app.ports.pushUrl.subscribe(function(url) {
-    history.pushState({}, '', url);
-//    app.ports.onUrlChange.send(location.href);
+app.ports.pushUrl.subscribe(function (url) {
+  history.pushState({}, "", url);
+  //    app.ports.onUrlChange.send(location.href);
 });
 
 // If you want your app to work offline and load faster, you can change

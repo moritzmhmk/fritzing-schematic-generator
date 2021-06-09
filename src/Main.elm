@@ -31,10 +31,10 @@ import Svg.Attributes
 
 
 type alias Model =
-    { height : Int
-    , label : String
-    , pins : List Pin
+    { label : String
     , width : Int
+    , height : Int
+    , pins : List Pin
     }
 
 

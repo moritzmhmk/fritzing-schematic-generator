@@ -263,6 +263,7 @@ view model =
                   ]
                 ]
         , sectionDiv "Preview" [ viewSvg model ]
+        , sectionDiv "XML" [ Html.node "svg-xml-view" [ Html.Attributes.attribute "svg-id" "preview" ] [] ]
         ]
 
 
@@ -330,7 +331,8 @@ viewSvg model =
             model.height + getMargin Top model.pins + getMargin Bottom model.pins
     in
     svg
-        [ width <| (String.fromFloat <| toFloat viewWidth / 1000) ++ "in"
+        [ id "preview"
+        , width <| (String.fromFloat <| toFloat viewWidth / 1000) ++ "in"
         , height <| (String.fromFloat <| toFloat viewHeight / 1000) ++ "in"
         , viewBox <| "0 0 " ++ String.fromInt viewWidth ++ " " ++ String.fromInt viewHeight
         ]

@@ -59,7 +59,9 @@ svg {
   zoom: 2;
   background: #fff;
 }
-pre {
+svg-xml-view {
   align-self: center;
   white-space: pre-wrap;
+  background:  white;
+  padding: 5px;
 }

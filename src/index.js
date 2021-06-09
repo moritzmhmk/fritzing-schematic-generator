@@ -67,6 +67,7 @@ customElements.define(
       this.targetNode = document.getElementById(this.getAttribute("svg-id"));
       this.observer.observe(this.targetNode, {
         attributes: true,
+        characterData: true,
         childList: true,
         subtree: true,
       });
